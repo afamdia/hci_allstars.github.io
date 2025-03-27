@@ -7,9 +7,9 @@ import PostsList from "../components/PostList";
 
 const HomePage: React.FC = () => {
   return (
-    <div className="container">
+    <div className="flex flex-col items-center min-h-screen">
       <MenuBar />
-      <main>
+      <main className="flex flex-col items-center justify-center w-full">
         <Map />
         <PostsList />
       </main>

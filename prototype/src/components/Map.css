@@ -1,0 +1,30 @@
+/* src/components/Map.css */
+
+.map-container {
+    width: 100%;
+    max-height: 80vh; /* 80% of the viewport height */
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc; /* Optional: Add a border to the container */
+    position: relative;
+}
+
+.map-content {
+    position: relative;
+}
+
+.responsive-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain; /* Ensure the image fits within the container */
+}
+
+.overlay {
+    position: absolute;
+    background-color: rgba(255, 0, 0, 0.5); /* Example background color */
+    padding: 5px;
+    border-radius: 3px;
+    color: white;
+}
