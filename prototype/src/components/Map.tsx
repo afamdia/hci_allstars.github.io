@@ -30,6 +30,12 @@ const pins: Pin[] = [
     color: "rgba(0, 255, 0, 0.5)",
     Text: "Smith Union",
   }, // 38 is Smith
+  {
+    postCount: 4,
+    location: "58",
+    color: "rgba(0,0,0,0.5)",
+    Text: "Watson Arena",
+  },
 ];
 
 const Map: React.FC = () => {
@@ -68,17 +74,9 @@ const Map: React.FC = () => {
       const point = points[pin.location];
       if (!point) return null;
 
-      console.log(`point is ${point}`);
-      console.log(
-        `imageDimensions is ${imageDimensions.height}, ${imageDimensions.width}`,
-      );
-
       const topPercent = (point[1] / Number(imageDimensions.height)) * 100;
       const leftPercent = (point[0] / Number(imageDimensions.width)) * 100;
 
-      console.log(
-        `Computed percentage: top=${topPercent}%, left=${leftPercent}%`,
-      );
       return (
         <div
           key={index}
