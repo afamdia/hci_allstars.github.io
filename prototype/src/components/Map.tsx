@@ -1,64 +1,118 @@
-// src/components/Map.tsx
-
 "use client";
 
-import React from "react";
-// import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "./Map.css";
 
 interface Pin {
   postCount: number;
-  x: number;
-  y: number;
+  location: string;
   color: string;
+  Text?: string;
 }
 
 const pins: Pin[] = [
-  { postCount: 3, x: 10, y: 30, color: "rgba(255, 0, 0, 0.5)" }, // Red with 50% transparency
-  { postCount: 5, x: 30, y: 20, color: "rgba(0, 0, 255, 0.5)" }, // Blue with 50% transparency
-  { postCount: 2, x: 50, y: 50, color: "rgba(0, 255, 0, 0.5)" }, // Green with 50% transparency
+  {
+    postCount: 3,
+    location: "14",
+    color: "rgba(255, 0, 0, 0.5)",
+    Text: "Searles",
+  }, // 14 is Searles
+  {
+    postCount: 5,
+    location: "70",
+    color: "rgba(0, 0, 255, 0.5)",
+    Text: "Throne",
+  }, // 70 is Throne
+  {
+    postCount: 2,
+    location: "38",
+    color: "rgba(0, 255, 0, 0.5)",
+    Text: "Smith Union",
+  }, // 38 is Smith
 ];
 
 const Map: React.FC = () => {
-  // const [zoomLevel, setZoomLevel] = useState(1);
+  const [points, setPoints] = useState<{ [key: string]: [number, number] }>({});
+  const [loading, setLoading] = useState(true);
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
-  // const handleZoom = (ref: ReactZoomPanPinchRef) => {
-  //   console.log("Zoom level:", ref.state.scale);
-  //   console.log(ref);
-  //   setZoomLevel(ref.state.scale);
-  // };
+  useEffect(() => {
+    fetch("/points.json")
+      .then((response) => response.json())
+      .then((data) => {
+        setPoints(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching points data:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleImageLoad = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>,
+  ) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget;
+    setImageDimensions({ width: naturalWidth, height: naturalHeight });
+  };
 
   const renderPins = () => {
-    return pins.map((pin, index) => (
-      <div
-        key={index}
-        className="absolute text-white p-2 rounded"
-        style={{
-          top: `${pin.x}%`,
-          left: `${pin.y}%`,
-          backgroundColor: pin.color,
-          transform: `translate(-50%, -50%)`,
-          // transformOrigin: "top left",
-        }}
-      >
-        {`Posts: ${pin.postCount}`}
-      </div>
-    ));
+    if (imageDimensions.width === 0 || imageDimensions.height === 0)
+      return null;
+
+    return pins.map((pin, index) => {
+      const point = points[pin.location];
+      if (!point) return null;
+
+      console.log(`point is ${point}`);
+      console.log(
+        `imageDimensions is ${imageDimensions.height}, ${imageDimensions.width}`,
+      );
+
+      const topPercent = (point[1] / Number(imageDimensions.height)) * 100;
+      const leftPercent = (point[0] / Number(imageDimensions.width)) * 100;
+
+      console.log(
+        `Computed percentage: top=${topPercent}%, left=${leftPercent}%`,
+      );
+      return (
+        <div
+          key={index}
+          className="absolute text-white p-2 rounded"
+          style={{
+            top: `${topPercent}%`,
+            left: `${leftPercent}%`,
+            backgroundColor: pin.color,
+            transform: `translate(-50%, -50%)`,
+          }}
+        >
+          {`${pin.Text}: ${pin.postCount}`}
+        </div>
+      );
+    });
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <section className="flex items-center justify-center w-full max-h-[70vh] overflow-hidden relative">
       <div className="max-w-4xl w-full min-h-80 px-4 border border-gray-300">
         <TransformWrapper>
           <TransformComponent>
-            {/* <KeepScale> */}
             <div className="relative w-full h-auto">
-              <img src={`/campus-map-main.png`} alt="Campus Map" />
-              {/* IDE will tell you to use Image from NextJS, don't. react-zoom-pan-pinch does not work with it. */}
+              <img
+                src={`/campus-map-main.png`}
+                alt="Campus Map"
+                onLoad={handleImageLoad}
+              />
               {renderPins()}
             </div>
-            {/* </KeepScale> */}
           </TransformComponent>
         </TransformWrapper>
       </div>
