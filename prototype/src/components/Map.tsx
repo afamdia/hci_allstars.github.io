@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import {
+  TransformWrapper,
+  TransformComponent,
+  KeepScale,
+} from "react-zoom-pan-pinch";
 import "./Map.css";
+import { Abel } from "next/font/google";
 
 interface Pin {
   postCount: number;
@@ -80,15 +85,28 @@ const Map: React.FC = () => {
       return (
         <div
           key={index}
-          className="absolute text-white p-2 rounded"
           style={{
+            position: "absolute",
             top: `${topPercent}%`,
             left: `${leftPercent}%`,
-            backgroundColor: pin.color,
             transform: `translate(-50%, -50%)`,
           }}
         >
-          {`${pin.Text}: ${pin.postCount}`}
+          <KeepScale>
+            {/* Within this KeepScale component, you can assume the top left
+              corner of the div is where the actual building is (technically transform
+              is supposed to make it centered but idk what was happening).
+             What I feel like would be nice: when user is not actively interacting,
+             the div is just a dot, but on hover the actual building name is displayed.  */}
+            <div
+              className="absolute text-white p-2 rounded w-auto"
+              style={{
+                backgroundColor: pin.color,
+              }}
+            >
+              {`${pin.Text}: ${pin.postCount}`}
+            </div>
+          </KeepScale>
         </div>
       );
     });
@@ -103,6 +121,7 @@ const Map: React.FC = () => {
       <div className="max-w-4xl w-full min-h-80 px-4 border border-gray-300">
         <TransformWrapper>
           <TransformComponent>
+            {/* <KeepScale> */}
             <div className="relative w-full h-auto">
               <img
                 src={`/campus-map-main.png`}
@@ -111,6 +130,7 @@ const Map: React.FC = () => {
               />
               {renderPins()}
             </div>
+            {/* </KeepScale> */}
           </TransformComponent>
         </TransformWrapper>
       </div>
