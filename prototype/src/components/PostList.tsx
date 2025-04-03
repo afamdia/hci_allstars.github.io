@@ -1,12 +1,39 @@
 // src/components/PostList.tsx
 
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+
+interface Post {
+  id: number
+  content: string
+}
+
+const initialPosts: Post[] = [
+  { id: 1, content: "The steps by Moulton are very icy."},
+  { id: 2, content: "Bowdoin Wi-Fi went down in HL."},
+];
 
 const PostList: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
+
   return (
-    <section className="post-list">
-      {/* Posts list implementation will go here */}
-      Posts List Component
+    <section className="post-list w-full max-w-4xl mx-auto max-h-[400px] overflow-y-scroll p-4 border rounded-md bg-white shadow">
+      <h2 className="text-lg font-semibold mb-4">Posts</h2>
+      {posts.length === 0 ? (
+        <div className="text-gray-500 italic">No posts yet. Be the first to post!</div>
+      ) : (
+        posts.map((post) => (
+          <div key={post.id} className="flex items-start mb-4 border p-3 rounded-md bg-gray-50">
+            {/* Placeholder for future voting UI */}
+            <div className="w-8 mr-4 h-full"></div>
+            <div>
+              <div className="text-sm text-gray-600 mb-1">👤 Bowdoin Student</div>
+              <div>{post.content}</div>
+            </div>
+          </div>
+        ))
+      )}
     </section>
   );
 };
