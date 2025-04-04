@@ -3,10 +3,50 @@
 "use client";
 
 import React, { useState } from "react";
+import './PostList.css';
 
+
+// Upvoting and Downvoting
+function Upvote() {
+  const [value, setValue] = useState(0);
+
+  function handleClick() {
+    setValue(value+1);
+  }
+
+  return (
+    <div className="triangle-wrapper">
+      <button className="upvote-button" onClick={handleClick}></button>
+      <span className="value"> {value} </span>
+    </div>
+    //<button className="upvote-button" onClick={handleClick}> {value} </button>
+  );
+}
+
+
+function Downvote() {
+  const [value, setValue] = useState(0);
+
+  function handleClick() {
+    setValue(value+1);
+  }
+
+  return (
+    <div className="triangle-wrapper">
+      <button className="downvote-button" onClick={handleClick}></button>
+      <span className="value"> {value} </span>
+    </div>
+  );
+}
+
+
+
+// Scrolling through posts
 interface Post {
   id: number
   content: string
+  //upvotes: number
+  //downvotes: number // Decide later if downvotes are even necessary
 }
 
 const initialPosts: Post[] = [
@@ -26,7 +66,10 @@ const PostList: React.FC = () => {
         posts.map((post) => (
           <div key={post.id} className="flex items-start mb-4 border p-3 rounded-md bg-gray-50">
             {/* Placeholder for future voting UI */}
-            <div className="w-8 mr-4 h-full"></div>
+            <div className="vote-layout">
+              <Upvote />
+              <Downvote />
+            </div>
             <div>
               <div className="text-sm text-gray-600 mb-1">👤 Bowdoin Student</div>
               <div>{post.content}</div>
