@@ -56,8 +56,8 @@ const initialPosts: Post[] = [
 ];
 
 const PostList: React.FC = () => {
+  // eslint-disable-next-line
   const [posts, setPosts] = useState<Post[]>(initialPosts);
-  setPosts(initialPosts);
   return (
     <section className="w-full max-w-3xl mx-auto max-h-[500px] overflow-y-auto p-6 bg-gray-100 rounded-xl shadow-md">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Posts</h2>

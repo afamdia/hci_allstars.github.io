@@ -1,9 +1,9 @@
 // src/app/page.tsx
 
 import React from "react";
-import MenuBar from "../components/MenuBar";
-import Map from "../components/Map";
-import PostsList from "../components/PostList";
+import MenuBar from "./MenuBar";
+import Map from "./Map";
+import PostsList from "./PostList";
 
 const HomePage: React.FC = () => {
   return (
