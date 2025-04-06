@@ -5,6 +5,7 @@
 import React, { useState } from "react";
 
 import Image from "next/image";
+import Link from 'next/link'
 
 
 const MenuBar: React.FC = () => {
@@ -29,9 +30,9 @@ const MenuBar: React.FC = () => {
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex gap-6">
-          <li><a href="/" className="hover:underline">Home</a></li>
-          <li><a href="/make-post" className="hover:underline">Make Post</a></li>
-          <li><a href="/help" className="hover:underline">Help</a></li>
+          <li><Link href="/" className="hover:underline">Home</Link></li>
+          <li><Link href="/make-post" className="hover:underline">Make Post</Link></li>
+          <li><Link href="/help" className="hover:underline">Help</Link></li>
         </ul>
 
         {/* Mobile Button (no external icons) */}
@@ -46,9 +47,9 @@ const MenuBar: React.FC = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <ul className="flex flex-col gap-3 mt-4 md:hidden">
-          <li><a href="/" className="block hover:underline">Home</a></li>
-          <li><a href="/make-post" className="block hover:underline">Make Post</a></li>
-          <li><a href="/help" className="block hover:underline">Help</a></li>
+          <li><Link href="/" className="block hover:underline">Home</Link></li>
+          <li><Link href="/make-post" className="block hover:underline">Make Post</Link></li>
+          <li><Link href="/help" className="block hover:underline">Help</Link></li>
         </ul>
       )}
     </nav>
