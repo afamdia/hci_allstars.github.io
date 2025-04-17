@@ -9,12 +9,13 @@ Then, whenever you want to work on it, follow the instructions in `STEP 2`.
 - Initialize a python environment `python3 -m venv .venv`
 - Activate the environment `. .venv/bin/activate`
 - Install the dependencies `pip install -r requirements.txt`
-- deactivate `. .venv/bin/deactivate`
+- deactivate `deactivate`
 
 ## STEP 2: To run the server
 
 - Make sure you're in the venv `. .venv/bin/activate`
 - Run the server `flask --app server run`
+- When you're ready to stop `deactivate`
 
 ## For me:
 
