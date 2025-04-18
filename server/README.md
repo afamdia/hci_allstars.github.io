@@ -20,3 +20,13 @@ Then, whenever you want to work on it, follow the instructions in `STEP 2`.
 ## For me:
 
 To save the deps it's `pip freeze --local > requirements.txt`
+
+GET all posts: curl http://127.0.0.1:5000/post
+
+Create a post: curl -X POST "http://127.0.0.1:5000/post?content=New%20post&location=10"
+
+Upvote a post: curl -X POST http://127.0.0.1:5000/post/1?action=upvote
+
+Delete a post: curl -X DELETE http://127.0.0.1:5000/post/1
+
+
