@@ -66,7 +66,7 @@ const PostList: React.FC<PostListProps> = ({ posts, onPostUpdate }) => {
               <Downvote postId={post.id.toString()} onUpdatePost={onPostUpdate} />
             </div>
             <div className="flex flex-col">
-              <div className="text-sm text-gray-500 mb-1">👤 Bowdoin Student</div>
+              <div className="text-sm text-gray-500 mb-1">📍 {post.location}</div>
               <div className="text-base text-gray-900">{post.content}</div>
             </div>
           </div>
