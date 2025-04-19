@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-// Extend onClose to optionally receive the new post
 interface MakePostModalProps {
   onClose: (newPost?: any) => void;
 }
@@ -25,6 +24,16 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // Build a list of valid option strings.
+    const validOptions = Object.entries(locationMapping).map(
+      ([key, value]) => `${key} - ${value}`
+    );
+    // Check that the input value exists in the valid options.
+    if (!validOptions.includes(location)) {
+      console.log("Invalid location selected");
+      alert("Please select a valid location from the list.");
+      return;
+    }
     const extractedLocation = location.split(" - ")[0].trim();
     try {
       const res = await fetch(
@@ -38,7 +47,6 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
       if (res.ok) {
         // Capture json from new post: {id, location, content, score:0}
         const newPost = await res.json();
-        // Instead of updating here, pass the newPost via onClose.
         onClose(newPost);
       } else {
         console.error("Failed to create post");
@@ -70,7 +78,21 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
             <input
               type="text"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => {
+                setLocation(e.target.value);
+                e.target.setCustomValidity("");
+              }}
+              onBlur={(e) => {
+                // Build a list of valid option strings.
+                const validOptions = Object.entries(locationMapping).map(
+                  ([key, value]) => `${key} - ${value}`
+                );
+                if (!validOptions.includes(e.target.value)) {
+                  e.target.setCustomValidity("Please select a valid location from the list.");
+                } else {
+                  e.target.setCustomValidity("");
+                }
+              }}
               className="border w-full p-2"
               list="locationOptions"
               required
