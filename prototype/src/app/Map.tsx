@@ -51,10 +51,22 @@ const Map: React.FC<MapProps> = ({ posts }) => {
   };
 
   // Compute pins using posts from props.
-  const computedPins = placeholderPins.map((pin) => {
-    const count = posts.filter((post) => post.location === pin.location).length;
-    return { ...pin, postCount: count };
-  });
+  const computedPins = (() => {
+    const pinMap: Record<string, number> = {};
+    posts.forEach((post) => {
+      pinMap[post.location] = (pinMap[post.location] || 0) + 1;
+    });
+    return Object.entries(pinMap).map(([location, count]) => {
+      // Generate a random RGB color with 0.5 opacity.
+      const randomColor = `rgba(${Math.floor(Math.random()*256)}, ${Math.floor(Math.random()*256)}, ${Math.floor(Math.random()*256)}, 0.5)`;
+      return {
+        location,
+        color: randomColor,
+        Text: "Posts",
+        postCount: count,
+      };
+    });
+  })();
 
   const renderPins = () => {
     if (imageDimensions.width === 0 || imageDimensions.height === 0) return null;
