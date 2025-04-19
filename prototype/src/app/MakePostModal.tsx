@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
 
+// Extend onClose to optionally receive the new post
 interface MakePostModalProps {
-  onClose: () => void;
+  onClose: (newPost?: any) => void;
 }
 
 const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
@@ -23,9 +24,8 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
       if (res.ok) {
         // Capture json from new post: {id, location, content, score:0}
         const newPost = await res.json();
-        // Placeholder function call to update PostList with the new post, e.g.:
-        // updatePostList(newPost);
-        onClose();
+        // Instead of updating here, pass the newPost via onClose.
+        onClose(newPost);
       } else {
         console.error("Failed to create post");
       }
@@ -59,7 +59,7 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
             />
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-3 py-1 rounded border">
+            <button type="button" onClick={() => onClose()} className="px-3 py-1 rounded border">
               Cancel
             </button>
             <button type="submit" className="px-3 py-1 bg-blue-500 text-white rounded">

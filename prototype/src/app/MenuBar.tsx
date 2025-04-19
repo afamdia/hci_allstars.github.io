@@ -3,15 +3,24 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import MakePostModal from "./MakePostModal"; // ensure the import path is correct
+import MakePostModal from "./MakePostModal";
 
-const MenuBar: React.FC = () => {
+interface MenuBarProps {
+  onModalClose: (newPost?: any) => void;
+}
+
+const MenuBar: React.FC<MenuBarProps> = ({ onModalClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
+  
+  // When closing the modal, pass any newPost to the handler from HomePage.
+  const closeModal = (newPost?: any) => {
+    setShowModal(false);
+    onModalClose(newPost);
+  };
 
   return (
     <>

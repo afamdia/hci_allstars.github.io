@@ -1,21 +1,34 @@
-// src/components/PostList.tsx
-
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-// Upvoting and Downvoting
-function Upvote({ postId }: { postId: string }) {
-  const [value, setValue] = useState(0);
+export interface Post {
+  id: number;
+  location: string;
+  content: string;
+  score: number;
+}
 
+export interface PostListHandle {
+  addOrUpdatePost: (newData: Post | Post[]) => void;
+}
+
+interface VoteProps {
+  postId: string;
+  onUpdatePost: (post: Post) => void;
+}
+
+function Upvote({ postId, onUpdatePost }: VoteProps) {
   async function handleClick() {
     try {
       const res = await fetch(`${baseURL}/post/${postId}?action=upvote`, { method: "POST" });
-
       if (res.ok) {
-        setValue(value + 1);
+        // The endpoint returns the updated post JSON.
+        const updatedPost = await res.json();
+        // Call the parent's update function.
+        onUpdatePost(updatedPost);
       } else {
         console.error(`Failed to upvote id ${postId}`);
       }
@@ -31,19 +44,18 @@ function Upvote({ postId }: { postId: string }) {
         onClick={handleClick}
       ></button>
     </div>
-    //<button className="upvote-button" onClick={handleClick}> {value} </button>
   );
 }
 
-function Downvote({ postId }: { postId: string }) {
-  const [value, setValue] = useState(0);
-
+function Downvote({ postId, onUpdatePost }: VoteProps) {
   async function handleClick() {
     try {
       const res = await fetch(`${baseURL}/post/${postId}?action=downvote`, { method: "POST" });
-
       if (res.ok) {
-        setValue(value + 1);
+        // The endpoint returns the updated post JSON.
+        const updatedPost = await res.json();
+        // Call the parent's update function.
+        onUpdatePost(updatedPost);
       } else {
         console.error(`Failed to downvote id ${postId}`);
       }
@@ -62,23 +74,7 @@ function Downvote({ postId }: { postId: string }) {
   );
 }
 
-// Scrolling through posts
-interface Post {
-  id: number;
-  location: string;
-  content: string;
-  score: number;
-}
-
-const placeholderPosts: Post[] = [
-  { id: 1, location: "14", content: "The steps by Moulton are very icy.", score: 69},
-  { id: 2, location: "14", content: "Bowdoin Wi-Fi went down in HL.", score: 69},
-  { id: 3, location: "14", content: "A tree fell on Coleman", score: 69},
-  { id: 4, location: "14", content: "The list is too slow", score: 69},
-];
-
-const PostList: React.FC = () => {
-  // eslint-disable-next-line
+const PostList = forwardRef<PostListHandle>((_, ref) => {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
@@ -98,13 +94,37 @@ const PostList: React.FC = () => {
     fetchPosts();
   }, []);
 
+  // Exposed function to add or update post(s).
+  const addOrUpdatePost = (newData: Post | Post[]) => {
+    if (Array.isArray(newData)) {
+      // Replace the entire list.
+      setPosts(newData);
+    } else {
+      // Check if the post exists; update if it does, or add it otherwise.
+      setPosts((prevPosts) => {
+        const index = prevPosts.findIndex((p) => p.id === newData.id);
+        if (index !== -1) {
+          // Update the existing post.
+          const updatedPosts = [...prevPosts];
+          updatedPosts[index] = newData;
+          return updatedPosts;
+        } else {
+          // Add the new post at the beginning.
+          return [newData, ...prevPosts];
+        }
+      });
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    addOrUpdatePost,
+  }));
+
   return (
     <section className="w-full max-w-3xl mx-auto max-h-[500px] overflow-y-auto p-6 bg-gray-100 rounded-xl shadow-md">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Posts</h2>
       {posts.length === 0 ? (
-        <div className="text-gray-600 italic">
-          No posts yet. Be the first to post!
-        </div>
+        <div className="text-gray-600 italic">No posts yet. Be the first to post!</div>
       ) : (
         posts.map((post) => (
           <div
@@ -112,14 +132,13 @@ const PostList: React.FC = () => {
             className="flex items-start bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm hover:shadow transition"
           >
             <div className="flex flex-col items-center mr-4">
-              <Upvote postId={post.id.toString()}/>
+              {/* Pass addOrUpdatePost as onUpdatePost so that the vote buttons update the list */}
+              <Upvote postId={post.id.toString()} onUpdatePost={addOrUpdatePost} />
               <div className="flex flex-col items-center mr-4">{post.score}</div>
-              <Downvote postId={post.id.toString()}/>
+              <Downvote postId={post.id.toString()} onUpdatePost={addOrUpdatePost} />
             </div>
             <div className="flex flex-col">
-              <div className="text-sm text-gray-500 mb-1">
-                👤 Bowdoin Student
-              </div>
+              <div className="text-sm text-gray-500 mb-1">👤 Bowdoin Student</div>
               <div className="text-base text-gray-900">{post.content}</div>
             </div>
           </div>
@@ -127,6 +146,7 @@ const PostList: React.FC = () => {
       )}
     </section>
   );
-};
+});
 
+PostList.displayName = "PostList";
 export default PostList;
