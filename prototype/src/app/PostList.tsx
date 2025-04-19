@@ -12,7 +12,7 @@ function Upvote({ postId }: { postId: string }) {
 
   async function handleClick() {
     try {
-      const res = await fetch(`${baseURL}/post/${postId}`, { method: "POST" });
+      const res = await fetch(`${baseURL}/post/${postId}?action=upvote`, { method: "POST" });
 
       if (res.ok) {
         setValue(value + 1);
@@ -36,11 +36,21 @@ function Upvote({ postId }: { postId: string }) {
   );
 }
 
-function Downvote() {
+function Downvote({ postId }: { postId: string }) {
   const [value, setValue] = useState(0);
 
-  function handleClick() {
-    setValue(value + 1);
+  async function handleClick() {
+    try {
+      const res = await fetch(`${baseURL}/post/${postId}?action=downvote`, { method: "POST" });
+
+      if (res.ok) {
+        setValue(value + 1);
+      } else {
+        console.error(`Failed to downvote id ${postId}`);
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
   }
 
   return (
@@ -87,8 +97,8 @@ const PostList: React.FC = () => {
           >
             {/* Placeholder for future voting UI */}
             <div className="flex flex-col items-center mr-4">
-              <Upvote />
-              <Downvote />
+              <Upvote postId={post.id.toString()}/>
+              <Downvote postId={post.id.toString()}/>
             </div>
             <div className="flex flex-col">
               <div className="text-sm text-gray-500 mb-1">
