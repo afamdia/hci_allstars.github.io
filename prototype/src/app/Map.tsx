@@ -3,80 +3,66 @@
 import React, { useEffect, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import "./Map.css";
+import { Post } from "./page";
 
 interface Pin {
-  postCount: number;
   location: string;
   color: string;
   Text?: string;
+  postCount: number;
 }
 
-const pins: Pin[] = [
-  {
-    postCount: 3,
-    location: "14",
-    color: "rgba(255, 0, 0, 0.5)",
-    Text: "Searles",
-  }, // 14 is Searles
-  {
-    postCount: 5,
-    location: "70",
-    color: "rgba(0, 0, 255, 0.5)",
-    Text: "Throne",
-  }, // 70 is Throne
-  {
-    postCount: 2,
-    location: "38",
-    color: "rgba(0, 255, 0, 0.5)",
-    Text: "Smith Union",
-  }, // 38 is Smith
-  {
-    postCount: 4,
-    location: "58",
-    color: "rgba(0,0,0,0.5)",
-    Text: "Watson Arena",
-  },
+// Static configuration for pins.
+const placeholderPins: Pin[] = [
+  { location: "14", color: "rgba(255, 0, 0, 0.5)", Text: "Searles", postCount: 0 },
+  { location: "70", color: "rgba(0, 0, 255, 0.5)", Text: "Throne", postCount: 0 },
+  { location: "38", color: "rgba(0, 255, 0, 0.5)", Text: "Smith Union", postCount: 0 },
+  { location: "58", color: "rgba(0, 0, 0, 0.5)", Text: "Watson Arena", postCount: 0 },
 ];
 
-const Map: React.FC = () => {
-  const [points, setPoints] = useState<{ [key: string]: [number, number] }>({});
-  const [loading, setLoading] = useState(true);
-  const [imageDimensions, setImageDimensions] = useState({
-    width: 0,
-    height: 0,
-  });
+interface MapProps {
+  posts: Post[];
+}
 
+const Map: React.FC<MapProps> = ({ posts }) => {
+  const [points, setPoints] = useState<{ [key: string]: [number, number] }>({});
+  const [loadingPoints, setLoadingPoints] = useState(true);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+
+  // Fetch coordinate points.
   useEffect(() => {
     fetch("/points.json")
       .then((response) => response.json())
       .then((data) => {
         setPoints(data);
-        setLoading(false);
+        setLoadingPoints(false);
       })
       .catch((error) => {
         console.error("Error fetching points data:", error);
-        setLoading(false);
+        setLoadingPoints(false);
       });
   }, []);
 
-  const handleImageLoad = (
-    event: React.SyntheticEvent<HTMLImageElement, Event>,
-  ) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget;
-    setImageDimensions({ width: naturalWidth, height: naturalHeight });
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    setImageDimensions({
+      width: e.currentTarget.naturalWidth,
+      height: e.currentTarget.naturalHeight,
+    });
   };
 
-  const renderPins = () => {
-    if (imageDimensions.width === 0 || imageDimensions.height === 0)
-      return null;
+  // Compute pins using posts from props.
+  const computedPins = placeholderPins.map((pin) => {
+    const count = posts.filter((post) => post.location === pin.location).length;
+    return { ...pin, postCount: count };
+  });
 
-    return pins.map((pin, index) => {
+  const renderPins = () => {
+    if (imageDimensions.width === 0 || imageDimensions.height === 0) return null;
+    return computedPins.map((pin, index) => {
       const point = points[pin.location];
       if (!point) return null;
-
-      const topPercent = (point[1] / Number(imageDimensions.height)) * 100;
-      const leftPercent = (point[0] / Number(imageDimensions.width)) * 100;
-
+      const topPercent = (point[1] / imageDimensions.height) * 100;
+      const leftPercent = (point[0] / imageDimensions.width) * 100;
       return (
         <div
           key={index}
@@ -85,7 +71,7 @@ const Map: React.FC = () => {
             top: `${topPercent}%`,
             left: `${leftPercent}%`,
             backgroundColor: pin.color,
-            transform: `translate(-50%, -50%)`,
+            transform: "translate(-50%, -50%)",
           }}
         >
           {`${pin.Text}: ${pin.postCount}`}
@@ -94,9 +80,7 @@ const Map: React.FC = () => {
     });
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loadingPoints) return <div>Loading...</div>;
 
   return (
     <section className="flex items-center justify-center w-full max-h-[70vh] overflow-hidden relative">
@@ -104,11 +88,7 @@ const Map: React.FC = () => {
         <TransformWrapper>
           <TransformComponent>
             <div className="relative w-full h-auto">
-              <img
-                src={`/campus-map-main.png`}
-                alt="Campus Map"
-                onLoad={handleImageLoad}
-              />
+              <img src="/campus-map-main.png" alt="Campus Map" onLoad={handleImageLoad} />
               {renderPins()}
             </div>
           </TransformComponent>

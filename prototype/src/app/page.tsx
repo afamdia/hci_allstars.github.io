@@ -1,18 +1,61 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState, useEffect } from "react";
 import MenuBar from "./MenuBar";
 import Map from "./Map";
-import PostList, { PostListHandle } from "./PostList";
+import PostList from "./PostList";
+
+export interface Post {
+  id: number;
+  location: string;
+  content: string;
+  score: number;
+}
 
 const HomePage: React.FC = () => {
-  const postListRef = useRef<PostListHandle>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-  // Define onClose here so that when MakePostModal returns a new post,
-  // you can update PostList by calling addOrUpdatePost
-  const handleModalClose = (newPost?: any) => {
-    if (newPost && postListRef.current) {
-      postListRef.current.addOrUpdatePost(newPost);
+  // Fetch posts once and keep state here.
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const res = await fetch(`${baseURL}/post`);
+        if (res.ok) {
+          const data = await res.json();
+          setPosts(data);
+        } else {
+          console.error("Failed to fetch posts");
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    }
+    fetchPosts();
+  }, [baseURL]);
+
+  // Function to add or update a post.
+  const addOrUpdatePost = (newData: Post | Post[]) => {
+    if (Array.isArray(newData)) {
+      setPosts(newData);
+    } else {
+      setPosts((prevPosts) => {
+        const index = prevPosts.findIndex((p) => p.id === newData.id);
+        if (index !== -1) {
+          const updatedPosts = [...prevPosts];
+          updatedPosts[index] = newData;
+          return updatedPosts;
+        } else {
+          return [newData, ...prevPosts];
+        }
+      });
+    }
+  };
+
+  // Handle modal closure with new post info.
+  const handleModalClose = (newPost?: Post) => {
+    if (newPost) {
+      addOrUpdatePost(newPost);
     }
   };
 
@@ -20,8 +63,8 @@ const HomePage: React.FC = () => {
     <div className="flex flex-col items-center min-h-screen">
       <MenuBar onModalClose={handleModalClose} />
       <main className="flex flex-col items-center justify-center w-full">
-        <Map />
-        <PostList ref={postListRef} />
+        <Map posts={posts} />  {/* Pass posts to Map */}
+        <PostList posts={posts} onPostUpdate={addOrUpdatePost} /> {/* Pass posts and update function */}
       </main>
     </div>
   );
