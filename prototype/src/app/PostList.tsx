@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Post } from "./page";
 
 interface VoteProps {
@@ -52,6 +52,20 @@ interface PostListProps {
 }
 
 const PostList: React.FC<PostListProps> = ({ posts, onPostUpdate }) => {
+  const [locationMapping, setLocationMapping] = useState<Record<string, string>>({});
+
+  // Fetch the mapping file from public folder.
+  useEffect(() => {
+    fetch("/location-mapping.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setLocationMapping(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching location mapping:", error);
+      });
+  }, []);
+
   return (
     <section className="w-full max-w-3xl mx-auto overflow-y-auto p-6 bg-gray-100 rounded-xl shadow-md">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Posts</h2>
@@ -66,7 +80,10 @@ const PostList: React.FC<PostListProps> = ({ posts, onPostUpdate }) => {
               <Downvote postId={post.id.toString()} onUpdatePost={onPostUpdate} />
             </div>
             <div className="flex flex-col">
-              <div className="text-sm text-gray-500 mb-1">📍 {post.location}</div>
+              {/* Use the mapping: if available, display human-readable location */}
+              <div className="text-sm text-gray-500 mb-1">
+                📍 {locationMapping[post.location] ?? post.location}
+              </div>
               <div className="text-base text-gray-900">{post.content}</div>
             </div>
           </div>

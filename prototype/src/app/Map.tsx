@@ -1,24 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch";
 import "./Map.css";
 import { Post } from "./page";
 
 interface Pin {
   location: string;
   color: string;
-  Text?: string;
+  Text: string;
   postCount: number;
 }
-
-// Static configuration for pins.
-const placeholderPins: Pin[] = [
-  { location: "14", color: "rgba(255, 0, 0, 0.5)", Text: "Searles", postCount: 0 },
-  { location: "70", color: "rgba(0, 0, 255, 0.5)", Text: "Throne", postCount: 0 },
-  { location: "38", color: "rgba(0, 255, 0, 0.5)", Text: "Smith Union", postCount: 0 },
-  { location: "58", color: "rgba(0, 0, 0, 0.5)", Text: "Watson Arena", postCount: 0 },
-];
 
 interface MapProps {
   posts: Post[];
@@ -28,6 +20,7 @@ const Map: React.FC<MapProps> = ({ posts }) => {
   const [points, setPoints] = useState<{ [key: string]: [number, number] }>({});
   const [loadingPoints, setLoadingPoints] = useState(true);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [locationMapping, setLocationMapping] = useState<Record<string, string>>({});
 
   // Fetch coordinate points.
   useEffect(() => {
@@ -43,6 +36,18 @@ const Map: React.FC<MapProps> = ({ posts }) => {
       });
   }, []);
 
+  // Fetch location mapping.
+  useEffect(() => {
+    fetch("/location-mapping.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setLocationMapping(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching location mapping:", error);
+      });
+  }, []);
+
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setImageDimensions({
       width: e.currentTarget.naturalWidth,
@@ -50,7 +55,7 @@ const Map: React.FC<MapProps> = ({ posts }) => {
     });
   };
 
-  // Compute pins using posts from props.
+  // Compute pins by aggregating posts by location.
   const computedPins = (() => {
     const pinMap: Record<string, number> = {};
     posts.forEach((post) => {
@@ -58,11 +63,13 @@ const Map: React.FC<MapProps> = ({ posts }) => {
     });
     return Object.entries(pinMap).map(([location, count]) => {
       // Generate a random RGB color with 0.5 opacity.
-      const randomColor = `rgba(${Math.floor(Math.random()*256)}, ${Math.floor(Math.random()*256)}, ${Math.floor(Math.random()*256)}, 0.5)`;
+      const randomColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
+        Math.random() * 256
+      )}, ${Math.floor(Math.random() * 256)}, 0.5)`;
       return {
         location,
         color: randomColor,
-        Text: "Posts",
+        Text: locationMapping[location] ?? location,
         postCount: count,
       };
     });
@@ -75,18 +82,32 @@ const Map: React.FC<MapProps> = ({ posts }) => {
       if (!point) return null;
       const topPercent = (point[1] / imageDimensions.height) * 100;
       const leftPercent = (point[0] / imageDimensions.width) * 100;
+      
       return (
         <div
           key={index}
-          className="absolute text-white p-2 rounded"
           style={{
+            position: "absolute",
             top: `${topPercent}%`,
             left: `${leftPercent}%`,
-            backgroundColor: pin.color,
-            transform: "translate(-50%, -50%)",
+            // transform: `translate(-50%, -50%)`,
           }}
         >
-          {`${pin.Text}: ${pin.postCount}`}
+          <KeepScale>
+            {/* Within this KeepScale component, you can assume the top left
+              corner of the div is where the actual building is (technically transform
+              is supposed to make it centered but idk what was happening).
+             What I feel like would be nice: when user is not actively interacting,
+             the div is just a dot, but on hover the actual building name is displayed.  */}
+            <div
+              className="absolute text-white p-2 rounded w-auto whitespace-nowrap"
+              style={{
+                backgroundColor: pin.color,
+              }}
+            >
+              {pin.Text}: <strong>{pin.postCount}</strong>
+            </div>
+          </KeepScale>
         </div>
       );
     });

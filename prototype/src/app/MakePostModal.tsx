@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Extend onClose to optionally receive the new post
 interface MakePostModalProps {
@@ -9,16 +9,30 @@ interface MakePostModalProps {
 const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
   const [content, setContent] = useState("");
   const [location, setLocation] = useState("");
+  const [locationMapping, setLocationMapping] = useState<Record<string, string>>({});
+
+  // Fetch location mapping for the dropdown.
+  useEffect(() => {
+    fetch("/location-mapping.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setLocationMapping(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching location mapping:", error);
+      });
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const extractedLocation = location.split(" - ")[0].trim();
     try {
       const res = await fetch(
         process.env.NEXT_PUBLIC_API_URL +
           "/post?content=" +
           encodeURIComponent(content) +
           "&location=" +
-          encodeURIComponent(location),
+          encodeURIComponent(extractedLocation),
         { method: "POST" }
       );
       if (res.ok) {
@@ -36,9 +50,9 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
 
   return (
     <div 
-    // Screw tailwind I am doing this manually.
-    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-    className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+    >
       <div className="bg-white p-6 rounded shadow w-80">
         <h2 className="text-xl mb-4">Make Post</h2>
         <form onSubmit={handleSubmit}>
@@ -58,8 +72,14 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="border w-full p-2"
+              list="locationOptions"
               required
             />
+            <datalist id="locationOptions">
+              {Object.entries(locationMapping).map(([key, value]) => (
+                <option key={key} value={`${key} - ${value}`} />
+              ))}
+            </datalist>
           </div>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => onClose()} className="px-3 py-1 rounded border">
