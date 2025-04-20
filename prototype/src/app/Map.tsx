@@ -1,102 +1,119 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch";
 import "./Map.css";
+import { Post } from "./page";
 
 interface Pin {
-  postCount: number;
   location: string;
   color: string;
-  Text?: string;
+  Text: string;
+  postCount: number;
 }
 
-const pins: Pin[] = [
-  {
-    postCount: 3,
-    location: "14",
-    color: "rgba(255, 0, 0, 0.5)",
-    Text: "Searles",
-  }, // 14 is Searles
-  {
-    postCount: 5,
-    location: "70",
-    color: "rgba(0, 0, 255, 0.5)",
-    Text: "Throne",
-  }, // 70 is Throne
-  {
-    postCount: 2,
-    location: "38",
-    color: "rgba(0, 255, 0, 0.5)",
-    Text: "Smith Union",
-  }, // 38 is Smith
-  {
-    postCount: 4,
-    location: "58",
-    color: "rgba(0,0,0,0.5)",
-    Text: "Watson Arena",
-  },
-];
+interface MapProps {
+  posts: Post[];
+}
 
-const Map: React.FC = () => {
+const Map: React.FC<MapProps> = ({ posts }) => {
   const [points, setPoints] = useState<{ [key: string]: [number, number] }>({});
-  const [loading, setLoading] = useState(true);
-  const [imageDimensions, setImageDimensions] = useState({
-    width: 0,
-    height: 0,
-  });
+  const [loadingPoints, setLoadingPoints] = useState(true);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [locationMapping, setLocationMapping] = useState<Record<string, string>>({});
 
+  // Fetch coordinate points.
   useEffect(() => {
     fetch("/points.json")
       .then((response) => response.json())
       .then((data) => {
         setPoints(data);
-        setLoading(false);
+        setLoadingPoints(false);
       })
       .catch((error) => {
         console.error("Error fetching points data:", error);
-        setLoading(false);
+        setLoadingPoints(false);
       });
   }, []);
 
-  const handleImageLoad = (
-    event: React.SyntheticEvent<HTMLImageElement, Event>,
-  ) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget;
-    setImageDimensions({ width: naturalWidth, height: naturalHeight });
+  // Fetch location mapping.
+  useEffect(() => {
+    fetch("/location-mapping.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setLocationMapping(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching location mapping:", error);
+      });
+  }, []);
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    setImageDimensions({
+      width: e.currentTarget.naturalWidth,
+      height: e.currentTarget.naturalHeight,
+    });
   };
 
-  const renderPins = () => {
-    if (imageDimensions.width === 0 || imageDimensions.height === 0)
-      return null;
+  // Compute pins by aggregating posts by location.
+  const computedPins = (() => {
+    const pinMap: Record<string, number> = {};
+    posts.forEach((post) => {
+      pinMap[post.location] = (pinMap[post.location] || 0) + 1;
+    });
+    return Object.entries(pinMap).map(([location, count]) => {
+      // Generate a random RGB color with 0.5 opacity.
+      const randomColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
+        Math.random() * 256
+      )}, ${Math.floor(Math.random() * 256)}, 0.5)`;
+      return {
+        location,
+        color: randomColor,
+        Text: locationMapping[location] ?? location,
+        postCount: count,
+      };
+    });
+  })();
 
-    return pins.map((pin, index) => {
+  const renderPins = () => {
+    if (imageDimensions.width === 0 || imageDimensions.height === 0) return null;
+    return computedPins.map((pin, index) => {
       const point = points[pin.location];
       if (!point) return null;
-
-      const topPercent = (point[1] / Number(imageDimensions.height)) * 100;
-      const leftPercent = (point[0] / Number(imageDimensions.width)) * 100;
-
+      const topPercent = (point[1] / imageDimensions.height) * 100;
+      const leftPercent = (point[0] / imageDimensions.width) * 100;
+      
       return (
         <div
           key={index}
-          className="absolute text-white p-2 rounded"
           style={{
+            position: "absolute",
             top: `${topPercent}%`,
             left: `${leftPercent}%`,
-            backgroundColor: pin.color,
-            transform: `translate(-50%, -50%)`,
+            // transform: `translate(-50%, -50%)`,
           }}
         >
-          {`${pin.Text}: ${pin.postCount}`}
+          <KeepScale>
+            {/* Within this KeepScale component, you can assume the top left
+              corner of the div is where the actual building is (technically transform
+              is supposed to make it centered but idk what was happening).
+             What I feel like would be nice: when user is not actively interacting,
+             the div is just a dot, but on hover the actual building name is displayed.  */}
+            <div
+              className="absolute text-white p-2 rounded w-auto whitespace-nowrap"
+              style={{
+                backgroundColor: pin.color,
+              }}
+            >
+              {pin.Text}: <strong>{pin.postCount}</strong>
+            </div>
+          </KeepScale>
         </div>
       );
     });
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loadingPoints) return <div>Loading...</div>;
 
   return (
     <section className="flex items-center justify-center w-full max-h-[70vh] overflow-hidden relative">
@@ -104,11 +121,7 @@ const Map: React.FC = () => {
         <TransformWrapper>
           <TransformComponent>
             <div className="relative w-full h-auto">
-              <img
-                src={`/campus-map-main.png`}
-                alt="Campus Map"
-                onLoad={handleImageLoad}
-              />
+              <img src="/campus-map-main.png" alt="Campus Map" onLoad={handleImageLoad} />
               {renderPins()}
             </div>
           </TransformComponent>
