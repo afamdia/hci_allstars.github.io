@@ -10,8 +10,8 @@ export default function HelpPage() {
         Welcome to the Help page! Here you can find information on how to use the app.
       </p>
       <ul className="list-disc list-inside">
-        <li>Use the "Make Post" button to submit your content.</li>
-        <li>Use the "Profile" button to view your account info.</li>
+        <li>Use the Make Post button to submit your content.</li>
+        <li>Use the Profile button to view your account info.</li>
         <li>Contact support at <a href="mailto:support@example.com" className="underline">support@example.com</a>.</li>
       </ul>
 
