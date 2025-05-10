@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { Post } from "./page";
 
 interface MakePostModalProps {
-  onClose: (newPost?: any) => void;
+  onClose: (newPost?: Post) => void;
 }
 
 const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
