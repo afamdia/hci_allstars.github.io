@@ -6,76 +6,86 @@ import { Post } from "./page";
 interface VoteProps {
   postId: string;
   onUpdatePost: (post: Post) => void;
-  alreadyVoted: boolean;
-  onVote: () => void;
+  voteType: 'up' | 'down' | null;
+  onVote: (newVote: 'up' | 'down' | null) => void;
 }
 
-function Upvote({ postId, onUpdatePost, alreadyVoted, onVote }: VoteProps) {
+function Upvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
   async function handleClick() {
-    if (alreadyVoted) return;
+    const action = voteType === 'up' ? 'removeVote' : 'upvote';
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=upvote`, { method: "POST" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=${action}`, {
+        method: "POST",
+      });
       if (res.ok) {
         const updatedPost = await res.json();
         onUpdatePost(updatedPost);
-        onVote();
+        onVote(voteType === 'up' ? null : 'up');
       } else {
-        console.error(`Failed to upvote id ${postId}`);
+        console.error(`Failed to ${action} post ${postId}`);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   }
+
   return (
-    <button onClick={handleClick} disabled={alreadyVoted} className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-transparent border-b-blue-500 hover:border-b-blue-700"></button>
+    <button
+      onClick={handleClick}
+      className={`w-0 h-0 border-l-4 border-r-4 border-b-8 ${
+        voteType === 'up' ? 'border-b-blue-700' : 'border-b-blue-500'
+      } hover:border-b-blue-700`}
+    ></button>
   );
 }
 
-function Downvote({ postId, onUpdatePost, alreadyVoted, onVote }: VoteProps) {
+function Downvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
   async function handleClick() {
-    if (alreadyVoted) return;
+    const action = voteType === 'down' ? 'removeVote' : 'downvote';
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=downvote`, { method: "POST" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=${action}`, {
+        method: "POST",
+      });
       if (res.ok) {
         const updatedPost = await res.json();
         onUpdatePost(updatedPost);
-        onVote();
+        onVote(voteType === 'down' ? null : 'down');
       } else {
-        console.error(`Failed to downvote id ${postId}`);
+        console.error(`Failed to ${action} post ${postId}`);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   }
+
   return (
-    <button onClick={handleClick} disabled={alreadyVoted} className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-t-red-500 hover:border-t-red-700"></button>
+    <button
+      onClick={handleClick}
+      className={`w-0 h-0 border-l-4 border-r-4 border-t-8 ${
+        voteType === 'down' ? 'border-t-red-700' : 'border-t-red-500'
+      } hover:border-t-red-700`}
+    ></button>
   );
 }
 
 interface PostListProps {
   posts: Post[];
   onPostUpdate: (post: Post) => void;
-
 }
 
 const PostList: React.FC<PostListProps> = ({ posts, onPostUpdate }) => {
   const [locationMapping, setLocationMapping] = useState<Record<string, string>>({});
-  const [hasVoted, setVoterStatus] = useState<Record<string, boolean>>({});
+  const [voteStatus, setVoteStatus] = useState<Record<string, 'up' | 'down' | null>>({});
 
-  // Fetch the mapping file from public folder.
   useEffect(() => {
     fetch("/location-mapping.json")
       .then((res) => res.json())
-      .then((data) => {
-        setLocationMapping(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching location mapping:", error);
-      });
+      .then((data) => setLocationMapping(data))
+      .catch((error) => console.error("Error fetching location mapping:", error));
   }, []);
 
-  const handleVote = (postId: number) => {
-    setVoterStatus((prev) => ({ ...prev, [postId]: true }));
+  const handleVote = (postId: number, newVote: 'up' | 'down' | null) => {
+    setVoteStatus((prev) => ({ ...prev, [postId]: newVote }));
   };
 
   return (
@@ -85,14 +95,26 @@ const PostList: React.FC<PostListProps> = ({ posts, onPostUpdate }) => {
         <div className="text-gray-600 italic">No posts yet. Be the first to post!</div>
       ) : (
         posts.map((post) => (
-          <div key={post.id} className="flex items-start bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm hover:shadow transition">
+          <div
+            key={post.id}
+            className="flex items-start bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm hover:shadow transition"
+          >
             <div className="flex flex-col items-center mr-4">
-              <Upvote postId={post.id.toString()} onUpdatePost={onPostUpdate} alreadyVoted={hasVoted[post.id]} onVote={() => handleVote(post.id)} />
+              <Upvote
+                postId={post.id.toString()}
+                onUpdatePost={onPostUpdate}
+                voteType={voteStatus[post.id] ?? null}
+                onVote={(newVote) => handleVote(post.id, newVote)}
+              />
               <div>{post.score}</div>
-              <Downvote postId={post.id.toString()} onUpdatePost={onPostUpdate} alreadyVoted={hasVoted[post.id]} onVote={() => handleVote(post.id)} />
+              <Downvote
+                postId={post.id.toString()}
+                onUpdatePost={onPostUpdate}
+                voteType={voteStatus[post.id] ?? null}
+                onVote={(newVote) => handleVote(post.id, newVote)}
+              />
             </div>
             <div className="flex flex-col">
-              {/* Use the mapping: if available, display human-readable location */}
               <div className="text-sm text-gray-500 mb-1">
                 📍 {locationMapping[post.location] ?? post.location}
               </div>
