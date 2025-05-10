@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch";
+import {
+  TransformWrapper,
+  TransformComponent,
+  KeepScale,
+} from "react-zoom-pan-pinch";
 import "./Map.css";
 import { Post } from "./page";
 
@@ -16,11 +20,35 @@ interface MapProps {
   posts: Post[];
 }
 
+const bowdoinColors: [number, number, number][] = [
+  [0, 80, 106], // Atlantic
+  [115, 0, 81], // Lupine
+  [149, 80, 33], // Bark
+  [115, 40, 34], //Brick
+  [29, 92, 87], //Spruce
+  [104, 124, 47], // Pine
+];
+
+// Simple hash function to convert string to integer
+const getHashCode = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+};
+
 const Map: React.FC<MapProps> = ({ posts }) => {
   const [points, setPoints] = useState<{ [key: string]: [number, number] }>({});
   const [loadingPoints, setLoadingPoints] = useState(true);
-  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-  const [locationMapping, setLocationMapping] = useState<Record<string, string>>({});
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
+  const [locationMapping, setLocationMapping] = useState<
+    Record<string, string>
+  >({});
 
   // Fetch coordinate points.
   useEffect(() => {
@@ -48,7 +76,9 @@ const Map: React.FC<MapProps> = ({ posts }) => {
       });
   }, []);
 
-  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleImageLoad = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+  ) => {
     setImageDimensions({
       width: e.currentTarget.naturalWidth,
       height: e.currentTarget.naturalHeight,
@@ -62,10 +92,11 @@ const Map: React.FC<MapProps> = ({ posts }) => {
       pinMap[post.location] = (pinMap[post.location] || 0) + 1;
     });
     return Object.entries(pinMap).map(([location, count]) => {
-      // Generate a random RGB color with 0.5 opacity.
-      const randomColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
-        Math.random() * 256
-      )}, ${Math.floor(Math.random() * 256)}, 0.5)`;
+      const randomColor = `rgba(
+        ${bowdoinColors[getHashCode(location) % bowdoinColors.length][0]},
+        ${bowdoinColors[getHashCode(location) % bowdoinColors.length][1]},
+        ${bowdoinColors[getHashCode(location) % bowdoinColors.length][2]},
+        0.7)`;
       return {
         location,
         color: randomColor,
@@ -76,13 +107,14 @@ const Map: React.FC<MapProps> = ({ posts }) => {
   })();
 
   const renderPins = () => {
-    if (imageDimensions.width === 0 || imageDimensions.height === 0) return null;
+    if (imageDimensions.width === 0 || imageDimensions.height === 0)
+      return null;
     return computedPins.map((pin, index) => {
       const point = points[pin.location];
       if (!point) return null;
       const topPercent = (point[1] / imageDimensions.height) * 100;
       const leftPercent = (point[0] / imageDimensions.width) * 100;
-      
+
       return (
         <div
           key={index}
@@ -121,7 +153,11 @@ const Map: React.FC<MapProps> = ({ posts }) => {
         <TransformWrapper>
           <TransformComponent>
             <div className="relative w-full h-auto">
-              <img src="/campus-map-main.png" alt="Campus Map" onLoad={handleImageLoad} />
+              <img
+                src="/campus-map-main.png"
+                alt="Campus Map"
+                onLoad={handleImageLoad}
+              />
               {renderPins()}
             </div>
           </TransformComponent>
