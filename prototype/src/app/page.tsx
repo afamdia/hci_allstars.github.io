@@ -58,16 +58,28 @@ const HomePage: React.FC = () => {
       addOrUpdatePost(newPost);
     }
   };
-
   return (
+    <div className="flex flex-col items-center min-h-screen">
+    <MenuBar onModalClose={handleModalClose} />
+
+    <main className="flex flex-col md:flex-row items-center justify-center w-full">
+    <Map posts={posts} className="flex-1" />
+      <div className="w-full md:w-1/2 h-full overflow-y-auto">
+        <PostList posts={posts} onPostUpdate={addOrUpdatePost} />
+      </div>
+    </main>
+    </div>
+  );
+
+  /*return (
     <div className="flex flex-col items-center min-h-screen">
       <MenuBar onModalClose={handleModalClose} />
       <main className="flex flex-col items-center justify-center w-full">
-        <Map posts={posts} />  {/* Pass posts to Map */}
-        <PostList posts={posts} onPostUpdate={addOrUpdatePost} /> {/* Pass posts and update function */}
+        <Map posts={posts} />  {} //pass posts to map
+        <PostList posts={posts} onPostUpdate={addOrUpdatePost} /> {}// Pass posts and update function 
       </main>
     </div>
-  );
+  );*/
 };
 
 export default HomePage;
