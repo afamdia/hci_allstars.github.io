@@ -9,6 +9,10 @@ import {
 import "./Map.css";
 import { Post } from "./page";
 
+const prefix = process.env.NODE_ENV === 'production'
+  ? '/hci_allstars.github.io'
+  : ''
+
 interface MapProps {
   posts: Post[];
 }
@@ -147,7 +151,7 @@ const Map: React.FC<MapProps> = ({ posts }) => {
           <TransformComponent>
             <div className="relative w-full h-auto">
               <img
-                src="/campus-map-main.png"
+                src={`${prefix}/campus-map-main.png`}
                 alt="Campus Map"
                 onLoad={handleImageLoad}
               />
