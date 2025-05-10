@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import MakePostModal from "./MakePostModal";
+import { Post } from "./page";
 
 interface MenuBarProps {
-  onModalClose: (newPost?: any) => void;
+  onModalClose: (newPost?: Post) => void;
 }
 
 const MenuBar: React.FC<MenuBarProps> = ({ onModalClose }) => {
@@ -17,7 +18,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onModalClose }) => {
   const openModal = () => setShowModal(true);
   
   // When closing the modal, pass any newPost to the handler from HomePage.
-  const closeModal = (newPost?: any) => {
+  const closeModal = (newPost?: Post) => {
     setShowModal(false);
     onModalClose(newPost);
   };

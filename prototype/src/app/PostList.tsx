@@ -39,7 +39,7 @@ function Downvote({ postId, onUpdatePost, alreadyVoted, onVote }: VoteProps) {
       if (res.ok) {
         const updatedPost = await res.json();
         onUpdatePost(updatedPost);
-        onVote;
+        onVote();
       } else {
         console.error(`Failed to downvote id ${postId}`);
       }

@@ -9,13 +9,6 @@ import {
 import "./Map.css";
 import { Post } from "./page";
 
-interface Pin {
-  location: string;
-  color: string;
-  Text: string;
-  postCount: number;
-}
-
 interface MapProps {
   posts: Post[];
 }
