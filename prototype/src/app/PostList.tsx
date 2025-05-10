@@ -12,7 +12,12 @@ interface VoteProps {
 
 function Upvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
   async function handleClick() {
-    const action = voteType === 'up' ? 'removeVote' : 'upvote';
+    // Action is like this: if current status is 'up' we wanna cancel 
+    // the upvote by downvoting, if null, we upvote, if down, we upvote twice
+    // to cancel the downvote and upvote
+    const action = voteType === 'up' ? 'downvote' : 'upvote';
+    const needToCancelDownvote = voteType === 'down';
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=${action}`, {
         method: "POST",
@@ -24,6 +29,18 @@ function Upvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
       } else {
         console.error(`Failed to ${action} post ${postId}`);
       }
+      if (needToCancelDownvote) {
+        const cancelRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=upvote`, {
+          method: "POST",
+        });
+        if (cancelRes.ok) {
+          const updatedPost = await cancelRes.json();
+          onUpdatePost(updatedPost);
+          onVote('up');
+        } else {
+          console.error(`Failed to cancel downvote for post ${postId}`);
+        }
+      }
     } catch (error) {
       console.error("Error:", error);
     }
@@ -32,16 +49,27 @@ function Upvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
   return (
     <button
       onClick={handleClick}
-      className={`w-0 h-0 border-l-4 border-r-4 border-b-8 ${
-        voteType === 'up' ? 'border-b-blue-700' : 'border-b-blue-500'
-      } hover:border-b-blue-700`}
-    ></button>
+      className={`
+        bg-transparent p-0 m-0
+        w-0 h-0
+        border-l-4 border-l-transparent
+        border-r-4 border-r-transparent
+        border-b-8
+        ${voteType === 'up' ? 'border-b-blue-700 scale-200' : 'border-b-blue-500 scale-150'} 
+        transform transition-transform duration-200 
+        hover:border-b-blue-700 hover:scale-175
+      `}
+    />
   );
 }
 
 function Downvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
   async function handleClick() {
-    const action = voteType === 'down' ? 'removeVote' : 'downvote';
+    // Action is like this: if current status is 'down' we wanna cancel
+    // the downvote by upvoting, if null, we downvote, if up, we downvote twice
+    // to cancel the upvote and downvote
+    const action = voteType === 'down' ? 'upvote' : 'downvote';
+    const needToCancelUpvote = voteType === 'up';
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=${action}`, {
         method: "POST",
@@ -53,6 +81,18 @@ function Downvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
       } else {
         console.error(`Failed to ${action} post ${postId}`);
       }
+      if (needToCancelUpvote) {
+        const cancelRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${postId}?action=downvote`, {
+          method: "POST",
+        });
+        if (cancelRes.ok) {
+          const updatedPost = await cancelRes.json();
+          onUpdatePost(updatedPost);
+          onVote('down');
+        } else {
+          console.error(`Failed to cancel upvote for post ${postId}`);
+        }
+      }
     } catch (error) {
       console.error("Error:", error);
     }
@@ -61,10 +101,17 @@ function Downvote({ postId, onUpdatePost, voteType, onVote }: VoteProps) {
   return (
     <button
       onClick={handleClick}
-      className={`w-0 h-0 border-l-4 border-r-4 border-t-8 ${
-        voteType === 'down' ? 'border-t-red-700' : 'border-t-red-500'
-      } hover:border-t-red-700`}
-    ></button>
+      className={`
+        bg-transparent p-0 m-0
+        w-0 h-0
+        border-l-4 border-l-transparent
+        border-r-4 border-r-transparent
+        border-t-8
+        ${voteType === 'down' ? 'border-t-red-700 scale-200' : 'border-t-red-500 scale-150'} 
+        transform transition-transform duration-200 
+        hover:border-t-red-700 hover:scale-175
+      `}
+    />
   );
 }
 
