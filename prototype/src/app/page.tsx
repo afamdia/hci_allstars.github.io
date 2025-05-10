@@ -62,8 +62,8 @@ const HomePage: React.FC = () => {
     <div className="flex flex-col items-center min-h-screen">
     <MenuBar onModalClose={handleModalClose} />
 
-    <main className="flex flex-col md:flex-row items-center justify-center w-full">
-    <Map posts={posts} className="flex-1" />
+    <main className="flex flex-col items-center justify-center w-full">
+    <Map posts={posts} />
       <div className="w-full md:w-1/2 h-full overflow-y-auto">
         <PostList posts={posts} onPostUpdate={addOrUpdatePost} />
       </div>
