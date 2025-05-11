@@ -62,7 +62,7 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
       className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
     >
-      <div className="bg-white p-6 rounded shadow w-80">
+      <div className="bg-white text-black p-6 rounded shadow w-80">
         <h2 className="text-xl mb-4">Make Post</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
