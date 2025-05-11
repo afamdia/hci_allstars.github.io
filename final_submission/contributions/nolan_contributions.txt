@@ -1,0 +1,4 @@
+- I wrote the discussion section for the final report and made similar sized contributions on the other PQs
+- I wrote the code for the navigation bar on our app as well as making the help page
+- I regularly worked with James and Afamdi on the less technical parts of PQs because Tom and Patrick were
+more comfortable coding, particularly with the functionality aspects of the application
