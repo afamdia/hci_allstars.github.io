@@ -1,3 +1,3 @@
-- I made the Map component and made changes to ensure the front end uses the appropriate API calls to communicate with the backend data. 
+- I made the Map component and made changes to the website's components to ensure the front end uses the appropriate API calls to communicate with the backend server.  
 - I made most of the LaTeX submission for the group. 
 - I pair programmed with Patrick regularly for the overall functionality of the website. 
