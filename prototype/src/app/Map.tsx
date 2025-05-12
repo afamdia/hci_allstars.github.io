@@ -49,7 +49,8 @@ const Map: React.FC<MapProps> = ({ posts }) => {
 
   // Fetch coordinate points.
   useEffect(() => {
-    fetch("/points.json")
+    const basePath = process.env.NODE_ENV === "production" ? "/hci_allstars.github.io" : "";
+    fetch(`${basePath}/points.json`)
       .then((response) => response.json())
       .then((data) => {
         setPoints(data);
@@ -63,7 +64,8 @@ const Map: React.FC<MapProps> = ({ posts }) => {
 
   // Fetch location mapping.
   useEffect(() => {
-    fetch("/location-mapping.json")
+    const basePath = process.env.NODE_ENV === "production" ? "/hci_allstars.github.io" : "";
+    fetch(`${basePath}/location-mapping.json`)
       .then((res) => res.json())
       .then((data) => {
         setLocationMapping(data);

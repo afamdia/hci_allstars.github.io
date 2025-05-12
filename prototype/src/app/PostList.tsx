@@ -125,7 +125,8 @@ const PostList: React.FC<PostListProps> = ({ posts, onPostUpdate }) => {
   const [voteStatus, setVoteStatus] = useState<Record<string, 'up' | 'down' | null>>({});
 
   useEffect(() => {
-    fetch("/location-mapping.json")
+    const basePath = process.env.NODE_ENV === "production" ? "/hci_allstars.github.io" : "";
+    fetch(`${basePath}/location-mapping.json`)
       .then((res) => res.json())
       .then((data) => setLocationMapping(data))
       .catch((error) => console.error("Error fetching location mapping:", error));

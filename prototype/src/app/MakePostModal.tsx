@@ -13,7 +13,8 @@ const MakePostModal: React.FC<MakePostModalProps> = ({ onClose }) => {
 
   // Fetch location mapping for the dropdown.
   useEffect(() => {
-    fetch("/location-mapping.json")
+    const basePath = process.env.NODE_ENV === "production" ? "/hci_allstars.github.io" : "";
+    fetch(`${basePath}/location-mapping.json`)
       .then((res) => res.json())
       .then((data) => {
         setLocationMapping(data);

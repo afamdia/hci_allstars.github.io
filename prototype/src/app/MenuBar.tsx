@@ -30,7 +30,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onModalClose }) => {
           {/* User Profile Button */}
           <button className="flex flex-col items-center gap-1">
             <Image
-              src={"/user-img.png"}
+              src={`${process.env.NODE_ENV === "production" ? "/hci_allstars.github.io" : ""}/user-img.png`}
               alt="User profile"
               width={32}
               height={32}
