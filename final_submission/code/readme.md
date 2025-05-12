@@ -1,5 +1,7 @@
 # Usage
 
+Link To GitHub Repo: https://github.com/afamdia/hci_allstars.github.io
+
 To execute code in this directory:
 
 ## Activate frontend
