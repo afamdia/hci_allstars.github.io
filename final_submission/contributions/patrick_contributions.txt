@@ -1,0 +1,3 @@
+ - Did all of the tailwind-ization of the relevant parts of the website.
+ - Did most of the badgering in the groupchat for checkpoint submissions.
+ - Wrote the entire website backend. 

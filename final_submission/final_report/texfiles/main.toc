@@ -1,0 +1,27 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}Related Works}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Bayne et al., 2019\cite {bayne_social_2019}}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Silva et al., 2014\cite {hutchison_traffic_2013}}{5}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Mergel, 2012\cite {mergel_distributed_2012}}{5}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Approach}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Minimalist Design}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Optionality}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}User Input and Engagement}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Accurate Community Representation}{7}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Navigation Bar}{7}{subsubsection.3.4.1}%
+\contentsline {section}{\numberline {4}Methods}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Participants}{8}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Materials}{8}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Experiment Design}{8}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Procedure}{8}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Results}{9}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Timing}{9}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Aesthetic}{9}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Discussion}{10}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Looking Back}{10}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Looking Forward}{10}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Conclusion}{12}{section.7}%
+\contentsline {section}{\numberline {A}Appendix}{13}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Script for Tasks}{13}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Initial state of Mobile and Desktop Design }{13}{subsection.A.2}%
+\contentsline {section}{\numberline {B}Acknowledgments}{14}{appendix.B}%

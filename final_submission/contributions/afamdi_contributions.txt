@@ -1,0 +1,3 @@
+- Wrote the "Approach" section for the final report and made similar sized contributions on the other PQs
+- Helped write the code for the "Posts" section of our interface (especially upvote/downvote functionality)
+- Worked with Nolan and James on some of the less technical aspects of the PQs
