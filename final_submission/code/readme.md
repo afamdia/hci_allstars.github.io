@@ -24,6 +24,6 @@ Both works, the latter one is more stable for production environment, but should
 ```sh
 cd backend
 # optionally, check if you have all the requirements
-pip install -r requrements.txt
+pip install -r requirements.txt
 flask --app server run
 ```
